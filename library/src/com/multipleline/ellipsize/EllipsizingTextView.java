@@ -24,7 +24,6 @@ public class EllipsizingTextView extends TextView {
     private boolean isStale = true;
     private boolean programmaticChange;
     private String fullText;
-    private int maxLines = -1;
     private float lineSpacingMultiplier = 1.0f;
     private float lineAdditionalVerticalPadding = 0.0f;
 
@@ -91,9 +90,10 @@ public class EllipsizingTextView extends TextView {
                 while (createWorkingLayout(workingText + ELLIPSIS).getLineCount() > maxLines) {
                     int lastSpace = workingText.lastIndexOf(' ');
                     if (lastSpace == -1) {
-                        break;
+                        workingText = workingText.substring(0, workingText.length() - 1);
+                    } else {
+                        workingText = workingText.substring(0, lastSpace);
                     }
-                    workingText = workingText.substring(0, lastSpace);
                 }
                 workingText = workingText + ELLIPSIS;
                 ellipsized = true;
