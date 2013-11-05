@@ -13,7 +13,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 public class EllipsizingTextView extends TextView {
-    private static final String ELLIPSIS = "...";
+    private static final char ELLIPSIS = 0x2026;
 
     public interface EllipsizeListener {
         void ellipsizeStateChanged(boolean ellipsized);
@@ -21,7 +21,7 @@ public class EllipsizingTextView extends TextView {
 
     private final List<EllipsizeListener> ellipsizeListeners = new ArrayList<EllipsizeListener>();
     private boolean isEllipsized;
-    private boolean isStale;
+    private boolean isStale = true;
     private boolean programmaticChange;
     private String fullText;
     private int maxLines = -1;
@@ -53,17 +53,6 @@ public class EllipsizingTextView extends TextView {
 
     public boolean isEllipsized() {
         return isEllipsized;
-    }
-
-    @Override
-    public void setMaxLines(int maxLines) {
-        super.setMaxLines(maxLines);
-        this.maxLines = maxLines;
-        isStale = true;
-    }
-
-    public int getMaxLines() {
-        return maxLines;
     }
 
     @Override
