@@ -1,9 +1,9 @@
 package com.multipleline.ellipsize;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.multiline.ellipsize.R;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -12,7 +12,11 @@ import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextUtils.TruncateAt;
 import android.util.AttributeSet;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.multiline.ellipsize.R;
 
 public class EllipsizingTextView extends TextView {
     private static String ELLIPSIS;
@@ -81,6 +85,32 @@ public class EllipsizingTextView extends TextView {
             resetText();
         }
         super.onDraw(canvas);
+    }
+
+    public int getMaxLines() {
+        Class<TextView> textViewClassInstance = TextView.class;
+        try {
+            Field MaxMode = textViewClassInstance.getDeclaredField("mMaxMode");
+            MaxMode.setAccessible(true);
+            int mMaxMode = MaxMode.getInt(this);
+            Field Maximum = textViewClassInstance.getDeclaredField("mMaximum");
+            Maximum.setAccessible(true);
+            int mMaximum = Maximum.getInt(this);
+            Field LINES = textViewClassInstance.getDeclaredField("LINES");
+            LINES.setAccessible(true);
+            int mLINES = LINES.getInt(this);
+            return mMaxMode == mLINES ? mMaximum : -1;
+        } catch (NoSuchFieldException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     private void resetText() {
