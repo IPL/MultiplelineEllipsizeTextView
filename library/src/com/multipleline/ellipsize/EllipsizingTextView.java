@@ -3,6 +3,8 @@ package com.multipleline.ellipsize;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.multiline.ellipsize.R;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.text.Layout;
@@ -13,7 +15,7 @@ import android.util.AttributeSet;
 import android.widget.TextView;
 
 public class EllipsizingTextView extends TextView {
-    private static final char ELLIPSIS = 0x2026;
+    private static String ELLIPSIS;
 
     public interface EllipsizeListener {
         void ellipsizeStateChanged(boolean ellipsized);
@@ -29,14 +31,17 @@ public class EllipsizingTextView extends TextView {
 
     public EllipsizingTextView(Context context) {
         super(context);
+        ELLIPSIS = context.getString(R.string.ellipsis);
     }
 
     public EllipsizingTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        ELLIPSIS = context.getString(R.string.ellipsis);
     }
 
     public EllipsizingTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+        ELLIPSIS = context.getString(R.string.ellipsis);
     }
 
     public void addEllipsizeListener(EllipsizeListener listener) {
@@ -73,7 +78,6 @@ public class EllipsizingTextView extends TextView {
     @Override
     protected void onDraw(Canvas canvas) {
         if (isStale) {
-            super.setEllipsize(null);
             resetText();
         }
         super.onDraw(canvas);
@@ -85,17 +89,33 @@ public class EllipsizingTextView extends TextView {
         boolean ellipsized = false;
         if (maxLines != -1) {
             Layout layout = createWorkingLayout(workingText);
-            if (layout.getLineCount() > maxLines) {
-                workingText = fullText.substring(0, layout.getLineEnd(maxLines - 1)).trim();
-                while (createWorkingLayout(workingText + ELLIPSIS).getLineCount() > maxLines) {
-                    int lastSpace = workingText.lastIndexOf(' ');
-                    if (lastSpace == -1) {
-                        workingText = workingText.substring(0, workingText.length() - 1);
-                    } else {
-                        workingText = workingText.substring(0, lastSpace);
+            int originalLineCount = layout.getLineCount();
+            if (originalLineCount > maxLines) {
+                if (this.getEllipsize() == TruncateAt.START) {
+                    workingText = fullText.substring(layout.getLineStart(originalLineCount - maxLines - 1)).trim();
+                    while (createWorkingLayout(ELLIPSIS + workingText).getLineCount() > maxLines) {
+                        int firstSpace = workingText.indexOf(' ');
+                        if (firstSpace == -1) {
+                            workingText = workingText.substring(1);
+                        } else {
+                            workingText = workingText.substring(firstSpace + 1);
+                        }
                     }
+                    workingText = ELLIPSIS + workingText;
+                } else if (this.getEllipsize() == TruncateAt.END) {
+                    workingText = fullText.substring(0, layout.getLineEnd(maxLines - 1)).trim();
+                    while (createWorkingLayout(workingText + ELLIPSIS).getLineCount() > maxLines) {
+                        int lastSpace = workingText.lastIndexOf(' ');
+                        if (lastSpace == -1) {
+                            workingText = workingText.substring(0, workingText.length() - 1);
+                        } else {
+                            workingText = workingText.substring(0, lastSpace);
+                        }
+                    }
+                    workingText = workingText + ELLIPSIS;
+                } else if (this.getEllipsize() == TruncateAt.MIDDLE) {
+
                 }
-                workingText = workingText + ELLIPSIS;
                 ellipsized = true;
             }
         }
@@ -121,8 +141,4 @@ public class EllipsizingTextView extends TextView {
                 Alignment.ALIGN_NORMAL, lineSpacingMultiplier, lineAdditionalVerticalPadding, false);
     }
 
-    @Override
-    public void setEllipsize(TruncateAt where) {
-        // Ellipsize settings are not respected
-    }
 }
