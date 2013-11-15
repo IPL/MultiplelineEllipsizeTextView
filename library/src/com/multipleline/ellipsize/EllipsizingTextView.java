@@ -144,7 +144,35 @@ public class EllipsizingTextView extends TextView {
                     }
                     workingText = workingText + ELLIPSIS;
                 } else if (this.getEllipsize() == TruncateAt.MIDDLE) {
-
+                    boolean shrinkLeft = false;
+                    int firstOffset = layout.getLineEnd(maxLines / 2);
+                    int secondOffset = layout.getLineEnd(originalLineCount - 1) - firstOffset + 1;
+                    String firstWorkingText = fullText.substring(0, firstOffset).trim();
+                    String secondWorkingText = fullText.substring(secondOffset).trim();
+                    while (createWorkingLayout(firstWorkingText + ELLIPSIS + secondWorkingText).getLineCount() > maxLines) {
+                        if (shrinkLeft) {
+                            shrinkLeft = false;
+                            int lastSpace = firstWorkingText.lastIndexOf(' ');
+                            if (lastSpace == -1) {
+                                firstWorkingText = firstWorkingText.substring(
+                                        0, firstWorkingText.length() - 1);
+                            } else {
+                                firstWorkingText = firstWorkingText.substring(
+                                        0, lastSpace);
+                            }
+                        } else {
+                            shrinkLeft = true;
+                            int firstSpace = secondWorkingText.indexOf(' ');
+                            if (firstSpace == -1) {
+                                secondWorkingText = secondWorkingText
+                                        .substring(1);
+                            } else {
+                                secondWorkingText = secondWorkingText
+                                        .substring(firstSpace + 1);
+                            }
+                        }
+                    }
+                    workingText = firstWorkingText + ELLIPSIS + secondWorkingText;
                 }
                 ellipsized = true;
             }
