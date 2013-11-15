@@ -53,7 +53,7 @@
         android:textStyle="bold"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Ellipsize Middle (TODO)" />
+        android:text="Ellipsize Middle" />
 
     <com.multipleline.ellipsize.EllipsizingTextView
         android:id="@+id/textViewMiddle"
